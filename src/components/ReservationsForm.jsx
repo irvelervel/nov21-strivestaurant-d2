@@ -26,17 +26,117 @@ class ReservationForm extends Component {
     },
   }
 
+  handleChange = (property, value) => {
+    // property and value are both strings (even if value can be also a boolean)
+    // what pieces of info do we need to make this function
+    // able to work on every onChange of every input field
+    this.setState({
+      reservation: {
+        ...this.state.reservation,
+        [property]: value,
+      },
+    })
+  }
+
+  handleSubmit = async (e) => {
+    e.preventDefault()
+    // this will prevent the browser from refreshing,
+    // put this as the first line of every handle submit function!
+    // url -> https://striveschool-api.herokuapp.com/api/reservation
+    // let's recap two ways of doing a fetch:
+    // 1) CHAINED THENs METHOD
+    // fetch('https://striveschool-api.herokuapp.com/api/reservation', {
+    //   method: 'POST',
+    //   body: JSON.stringify(this.state.reservation),
+    //   headers: {
+    //     'Content-type': 'application/json',
+    //   },
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log(data)
+    //     alert('reservation saved!')
+    //     this.setState({
+    //       reservation: {
+    //         name: '',
+    //         phone: '',
+    //         numberOfPeople: 1,
+    //         smoking: false,
+    //         dateTime: '',
+    //         specialRequests: '',
+    //       },
+    //     })
+    //   })
+    //   .catch((error) => console.log(error))
+    // 2) ASYNC/AWAIT PATTERN
+    try {
+      let response = await fetch(
+        'https://striveschool-api.herokuapp.com/api/reservation',
+        {
+          method: 'POST',
+          body: JSON.stringify(this.state.reservation),
+          headers: {
+            'Content-type': 'application/json',
+          },
+        }
+      )
+      if (response.ok) {
+        console.log(response)
+        alert('reservation saved!')
+        this.setState({
+          reservation: {
+            name: '',
+            phone: '',
+            numberOfPeople: 1,
+            smoking: false,
+            dateTime: '',
+            specialRequests: '',
+          },
+        })
+      } else {
+        // what type of error will fall here?
+        // here it means you connected to the server, but something went wrong!
+        alert('something went wrong! please try again')
+        // just some examples...
+        if (response.status === 400) {
+          alert('some data was wrong')
+        }
+        if (response.status === 400) {
+          alert('not found')
+        }
+      }
+    } catch (error) {
+      // what type of error will fall here?
+      // you probably have some internet problems :(
+      console.log(error)
+    }
+  }
+
   render() {
     return (
       <div className='mb-3'>
         <h2>Book your table here!</h2>
-        <Form>
+        <Form onSubmit={this.handleSubmit}>
           <Form.Group>
             <Form.Label>Reservation name</Form.Label>
             <Form.Control
               type='text'
               placeholder='Enter your name'
               value={this.state.reservation.name}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     // this is called a spread operator
+                //     // that line is bringing in this new object
+                //     // all the properties I currently have in this.state.reservation
+                //     // so the name, the phone, the numberOfPeople
+                //     // in this way I'm not losing anything in the process!
+                //     name: e.target.value,
+                //   },
+                // })
+                this.handleChange('name', e.target.value)
+              }
             />
           </Form.Group>
           <Form.Group>
@@ -45,6 +145,15 @@ class ReservationForm extends Component {
               type='text'
               placeholder='Enter your phone'
               value={this.state.reservation.phone}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     phone: e.target.value,
+                //   },
+                // })
+                this.handleChange('phone', e.target.value)
+              }
             />
           </Form.Group>
           <Form.Group>
@@ -52,6 +161,15 @@ class ReservationForm extends Component {
             <Form.Control
               as='select'
               value={this.state.reservation.numberOfPeople}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     numberOfPeople: e.target.value,
+                //   },
+                // })
+                this.handleChange('numberOfPeople', e.target.value)
+              }
             >
               <option>1</option>
               <option>2</option>
@@ -68,6 +186,15 @@ class ReservationForm extends Component {
               type='checkbox'
               label='Do you smoke'
               checked={this.state.reservation.smoking}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     smoking: e.target.value,
+                //   },
+                // })
+                this.handleChange('smoking', e.target.checked)
+              }
             />
           </Form.Group>
           <Form.Group>
@@ -75,6 +202,15 @@ class ReservationForm extends Component {
             <Form.Control
               type='datetime-local'
               value={this.state.reservation.dateTime}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     dateTime: e.target.value,
+                //   },
+                // })
+                this.handleChange('dateTime', e.target.value)
+              }
             />
           </Form.Group>
           <Form.Group>
@@ -83,10 +219,19 @@ class ReservationForm extends Component {
               as='textarea'
               rows={3}
               value={this.state.reservation.specialRequests}
+              onChange={(e) =>
+                // this.setState({
+                //   reservation: {
+                //     ...this.state.reservation,
+                //     specialRequests: e.target.value,
+                //   },
+                // })
+                this.handleChange('specialRequests', e.target.value)
+              }
             />
           </Form.Group>
           <Button variant='primary' type='submit'>
-            Submit
+            SEND RESERVATION
           </Button>
         </Form>
       </div>
